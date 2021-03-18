@@ -1,6 +1,8 @@
 # Deep Adaptive Input Normalization for Time Series Forecasting
 
-package version of dain, forked from https://github.com/passalis/dain
+#### package version of dain, forked from https://github.com/passalis/dain
+
+    pip install git+https://github.com/realiti4/tradingfeatures.git@master --upgrade
 
 Deep Learning (DL) models can be used to tackle time series analysis tasks with great success. However, the performance of DL models can degenerate rapidly if the data are not appropriately normalized. This issue is even more apparent when
 DL is used for financial time series forecasting tasks, where the non-stationary and multimodal nature of the data pose significant challenges and severely affect the performance of DL models. Deep Adaptive Input Normalization (DAIN) is a simple, yet effective, neural layer, that is capable of adaptively normalizing the input time series, while taking into
