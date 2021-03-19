@@ -29,7 +29,6 @@ class DAIN_Layer(nn.Module):
 
     def forward(self, x):
         # Expecting  (n_samples, dim,  n_feature_vectors)
-        assert x.dtype != torch.float16
 
         # Nothing to normalize
         if self.mode == None:
@@ -54,11 +53,12 @@ class DAIN_Layer(nn.Module):
             # Step 1:
             avg = torch.mean(x, 2)
             adaptive_avg = self.mean_layer(avg)
-            adaptive_avg = adaptive_avg.view(adaptive_avg.size(0), adaptive_avg.size(1), 1)
+            assert adaptive_avg.dtype != torch.float16, "don't use fp16 for dain"
+            adaptive_avg = adaptive_avg.view(adaptive_avg.size(0), adaptive_avg.size(1), 1)            
             x = x - adaptive_avg
 
             # Step 2:
-            std = torch.mean(x.square(), 2)
+            std = torch.mean(x.pow(2), 2)
             std = torch.sqrt(std + self.eps)
             adaptive_std = self.scaling_layer(std)
             adaptive_std[adaptive_std <= self.eps] = 1
@@ -75,7 +75,7 @@ class DAIN_Layer(nn.Module):
             x = x - adaptive_avg
 
             # # Step 2:
-            std = torch.mean(x.square(), 2)
+            std = torch.mean(x.pow(2), 2)
             std = torch.sqrt(std + self.eps)
             adaptive_std = self.scaling_layer(std)
             adaptive_std[adaptive_std <= self.eps] = 1
@@ -89,7 +89,6 @@ class DAIN_Layer(nn.Module):
             gate = gate.view(gate.size(0), gate.size(1), 1)
 
             x = x * gate
-            assert x.dtype != torch.float16
 
         else:
             assert False
