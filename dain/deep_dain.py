@@ -4,28 +4,32 @@ import numpy as np
 import torch.nn.functional as F
 
 
-class DAIN_Layer(nn.Module):
-    def __init__(self, mode='adaptive_avg', mean_lr=0.00001, gate_lr=0.001, scale_lr=0.00001, input_dim=8):
-        super(DAIN_Layer, self).__init__()
-        print("Mode = ", mode)
+class Deep_DAIN_Layer(nn.Module):
+    def __init__(self, mode='adaptive_avg', mean_lr=0.00001, gate_lr=0.001, scale_lr=0.00001, input_dim=8, layer_dim=1):
+        super(Deep_DAIN_Layer, self).__init__()
+        print(f'Dain: Mode = {mode}, Layer Dim = {layer_dim}')
 
         self.mode = mode
         self.mean_lr = mean_lr
         self.gate_lr = gate_lr
         self.scale_lr = scale_lr
 
-        # Parameters for adaptive average
-        self.mean_layer = nn.Linear(input_dim, input_dim, bias=False)
-        torch.nn.init.eye_(self.mean_layer.weight)
+        # Parameters for adaptive average        
+        self.mean_layer = nn.Sequential(*[nn.Linear(input_dim, input_dim, bias=False) for i in range(layer_dim)])
+        self._init_weights(self.mean_layer)
 
         # Parameters for adaptive std
-        self.scaling_layer = nn.Linear(input_dim, input_dim, bias=False)
-        torch.nn.init.eye_(self.scaling_layer.weight)
+        self.scaling_layer = nn.Sequential(*[nn.Linear(input_dim, input_dim, bias=False) for i in range(layer_dim)])
+        self._init_weights(self.scaling_layer)
 
         # Parameters for adaptive scaling
-        self.gating_layer = nn.Linear(input_dim, input_dim)
+        self.gating_layer = nn.Sequential(*[nn.Linear(input_dim, input_dim) for i in range(layer_dim)])
 
         self.eps = 1e-8
+
+    def _init_weights(self, layer):
+        for i in range(len(layer)):
+            torch.nn.init.eye_(layer[i].weight)
 
     def forward(self, x):
         # Expecting  (n_samples, dim,  n_feature_vectors)
