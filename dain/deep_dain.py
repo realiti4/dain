@@ -57,7 +57,7 @@ class Deep_DAIN_Layer(nn.Module):
             # Step 1:
             avg = torch.mean(x, 2)
             adaptive_avg = self.mean_layer(avg)
-            assert adaptive_avg.dtype != torch.float16, "don't use fp16 for dain"
+            # assert adaptive_avg.dtype != torch.float16, "don't use fp16 for dain"
             adaptive_avg = adaptive_avg.view(adaptive_avg.size(0), adaptive_avg.size(1), 1)            
             x = x - adaptive_avg
 
